@@ -41,11 +41,7 @@
 🔗[微信公众号](https://mp.weixin.qq.com/s/8i-AoSQFf0nXJRRJLrPxLQ)
 ### 致谢
 
-
 感谢 [NapCatQQ](https://github.com/NapNeko/NapCatQQ)
-
-感谢 [botpy](https://github.com/tencent-connect/botpy)
-
 
 
 ### 想要更多的Star⭐
