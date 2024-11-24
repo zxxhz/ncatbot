@@ -48,7 +48,7 @@
 
 ### 贡献者
 
-<a href="https://github.com/eryajf/learn-github/graphs/contributors">
+<a href="https://github.com/liyihao1110/NcatBot/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=eryajf/learn-github" />
 </a>
 
