@@ -6,6 +6,8 @@ from PIL import Image, ImageDraw
 
 # 获取这个文件所在的路径
 import os
+
+
 path = os.path.dirname(os.path.abspath(__file__)).replace('\\', '/')
 def markdown_to_image_beautified(md_text, output_path=path+'/output.png', wkhtmltoimage_path=path+'/wkhtmltoimage.exe'):
     """
@@ -93,8 +95,3 @@ def markdown_to_image_beautified(md_text, output_path=path+'/output.png', wkhtml
     os.remove(temp_output_path)
 
     return output_path
-
-def get_bot_nickname():
-    response = requests.post('http://localhost:3000/get_login_info').json()
-    nickname = response['data']['nickname']
-    return nickname
