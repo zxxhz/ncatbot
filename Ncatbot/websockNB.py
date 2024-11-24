@@ -1,23 +1,36 @@
-import asyncio
-import websockets
+
 import json
 import time
+import websockets
 
+from .api import BotAPI
 from .client import BotClient  # 注意首字母大写
-from .utils import get_bot_nickname
+from .settings import settings
+
+api: BotAPI
+
+
+def core(http_port: (int, str), ws_port: (int, str), max_ids=100):
+    global api
+    settings.max_ids = max_ids
+    settings.port_or_http = http_port
+    api = BotAPI(http_port)
+    client = BotWebSocket(ws_port)
+    return client, api
+
 
 class BotWebSocket:
     """
     一个 WebSocket 客户端类，用于与机器人服务器进行通信。
     """
 
-    def __init__(self, url):
+    def __init__(self, port_or_http=3001):
         """
         初始化 BotWebSocket 实例。
 
         :param url: WebSocket 服务器的 URL。
         """
-        self.url = url
+        self.url = port_or_http if str(port_or_http).startswith('ws') else f'ws://localhost:{port_or_http}'
         self.client = BotClient()
 
     async def on_message(self, ws, message):
@@ -29,13 +42,15 @@ class BotWebSocket:
         message = json.loads(message)
 
         event = message.get('post_type')
+        event_type = message.get('meta_event_type')
         TIME = message.get('time')
         time_tuple = time.localtime(TIME)
         formatted_time = time.strftime("%Y-%m-%d %H:%M:%S", time_tuple)
         bot_id = message.get('self_id')
 
-        if event == "meta_event":
-            print(f"ncatbot({formatted_time})| 机器人 [{get_bot_nickname()}] 成功上线!")
+        if event == "meta_event" and event_type == 'lifecycle':
+            nickname = await api.get_login_info()
+            print(f"ncatbot({formatted_time})| 机器人 [{nickname['data']['nickname']}] 成功上线!")
 
         elif event == "message":
             await self.client.message_handle(message)  # 使用 self.client 调用方法
