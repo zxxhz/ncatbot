@@ -46,10 +46,12 @@
 
 感谢 [botpy](https://github.com/tencent-connect/botpy)
 
-## 贡献者
+### 贡献者
 
-<!-- readme: collaborators,contributors -start -->
-<!-- readme: collaborators,contributors -end -->
+<a href="https://github.com/eryajf/learn-github/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=eryajf/learn-github" />
+</a>
+
 
 
 ### 想要更多的Star⭐
