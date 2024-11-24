@@ -46,12 +46,6 @@
 
 感谢 [botpy](https://github.com/tencent-connect/botpy)
 
-### 贡献者
-
-<a href="https://github.com/liyihao1110/NcatBot/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=eryajf/learn-github" />
-</a>
-
 
 
 ### 想要更多的Star⭐
