@@ -1,16 +1,18 @@
 from .api import BotAPI
+from .settings import settings
 
-class BaseMessage:
+
+class BaseMessage(BotAPI):
     def __init__(self, message):
-        self._api = BotAPI()
+        super().__init__(port_or_http=settings.port_or_http, max_ids=settings.max_ids)
         self.self_id = message.get("self_id", None)
         self.user_id = message.get("user_id", None)
         self.time = message.get("time", None)
         self.post_type = message.get("post_type", None)
 
 class GroupMessage(BaseMessage):
-    def __init__(self, message):
-        super().__init__(message)
+    def __init__(self, message, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
         self.group_id = message.get("group_id", None)
         self.message_type = message.get("message_type", None)
         self.sub_type = message.get("sub_type", None)
@@ -37,12 +39,12 @@ class GroupMessage(BaseMessage):
         def __repr__(self):
             return str(self.__dict__)
 
-    async def reply(self, **kwargs):
-        return await self._api.post_group_message(self.group_id, **kwargs)
+    async def reply(self):
+        return await self.send_group_msg(self.group_id, clear_message=True)
 
 class PrivateMessage(BaseMessage):
-    def __init__(self, message):
-        super().__init__(message)
+    def __init__(self, message, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
         self.message_id = message.get("message_id", None)
         self.message_seq = message.get("message_seq", None)
         self.real_id = message.get("real_id", None)
@@ -69,11 +71,11 @@ class PrivateMessage(BaseMessage):
             return str(self.__dict__)
 
     async def reply(self, **kwargs):
-        return await self._api.post_private_message(self.user_id, **kwargs)
+        return await self.send_private_msg(self.user_id, clear_message=True)
 
 class AllMessage(BaseMessage):
-    def __init__(self, message):
-        super().__init__(message)
+    def __init__(self, message, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
         self.group_id = message.get("group_id", None)
         self.message_type = message.get("message_type", None)
         self.sub_type = message.get("sub_type", None)
