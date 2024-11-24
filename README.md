@@ -46,6 +46,12 @@
 
 感谢 [botpy](https://github.com/tencent-connect/botpy)
 
+## 贡献者
+
+<!-- readme: collaborators,contributors -start -->
+<!-- readme: collaborators,contributors -end -->
+
+
 ### 想要更多的Star⭐
 
 
