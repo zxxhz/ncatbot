@@ -35,7 +35,7 @@ class BotWebSocket:
         bot_id = message.get('self_id')
 
         if event == "meta_event":
-            print(f"ncatbot({formatted_time})| 机器人 [{get_bot_nickname(bot_id)}] 成功上线!")
+            print(f"ncatbot({formatted_time})| 机器人 [{get_bot_nickname()}] 成功上线!")
 
         elif event == "message":
             await self.client.message_handle(message)  # 使用 self.client 调用方法
