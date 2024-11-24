@@ -144,7 +144,8 @@ class BotHttp:
 
                     if payload["video"] is not None:
                         data["message"].append({"type":"video","data":{"file":"file://"+os.getcwd().replace('\\', '\\\\')+"\\"+payload["video"]}})
-
+                    if payload["markdown"] is not None:
+                        data["message"].append({"type": "image", "data": {"file": "file://"+ markdown_to_image_beautified(payload["markdown"])}})
                     if payload["dic"]:
                         print("error: 错误的使用")
 
@@ -170,7 +171,8 @@ class BotHttp:
 
                     if payload["video"] is not None:
                         data["message"].append({"type":"video","data":{"file":"file://"+os.getcwd().replace('\\', '\\\\')+"\\"+payload["video"]}})
-
+                    if payload["markdown"] is not None:
+                        data["message"].append({"type": "image", "data": {"file": "file://"+ markdown_to_image_beautified(payload["markdown"])}})
                     if payload["dic"]:
                         pass
 
@@ -187,5 +189,42 @@ class BotHttp:
             elif method == "GET":
                 async with session.get(url, headers=headers, params=payload) as response:
                     return await response.json()
+            else:
+                raise ValueError("Unsupported HTTP method")
+
+    async def set_request(self, route, payload, headers, method):
+        url = f"{self.base_url}{route.path}"
+        async with aiohttp.ClientSession() as session:
+            if method == "POST":
+                if "nickname" in payload:
+                    if payload["nickname"] is not None:
+                        nickname = payload["nickname"]
+                        personal_note = payload["personal_note"]
+                        sex = payload["sex"]
+                        data={"nickname": nickname,"personal_note": personal_note,"sex": sex}
+                        async with session.post(url, headers=headers, json=data) as response:
+                            return await response.json()
+
+                    if payload["avatar"] is not None:
+                        avatar = payload["avatar"]
+                        data = {"file": os.getcwd().replace('\\', '\\\\')+"\\"+avatar}
+                        async with session.post(url, headers=headers, json=data) as response:
+                            return await response.json()
+                    if payload["longNick"] is not None:
+                        data={"longNick": payload["longNick"]}
+                        async with session.post(url, headers=headers, json=data) as response:
+                            return await response.json()
+                if "times" in payload:
+                    if payload["times"] is not None:
+                        data={"user_id": payload["user_id"], "times": payload["times"]}
+                        async with session.post(url, headers=headers, json=data) as response:
+                            return await response.json()
+
+
+
+            elif method == "GET":
+                async with session.get(url, headers=headers, params=payload) as response:
+                    return await response.json()
+
             else:
                 raise ValueError("Unsupported HTTP method")

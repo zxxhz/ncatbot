@@ -39,6 +39,7 @@ class BotAPI:
                                    video: str = None,
                                    reply: str = None,
                                    music: str = None,
+                                   markdown: str = None,
                                    dic: bool = False,
                                    rps: bool = False
                                     ):
@@ -51,6 +52,41 @@ class BotAPI:
         response_text = await self._http.send_private_request(route, payload, headers, "POST")
         return response_text
 
+    async def set_qq_profile(self,
+                             nickname: str = None,
+                             personal_note: str = None,
+                             sex: str = None,
+                             avatar: str = None,
+                             longNick: str = None):
+        if avatar is None:
+            payload = locals()
+            payload.pop("self", None)
+            route = Route("/set_qq_profile")
+        if avatar is not None:
+            payload = locals()
+            payload.pop("self", None)
+            route = Route("/set_qq_avatar")
+        if longNick is not None:
+            payload = locals()
+            payload.pop("self", None)
+            route = Route("/set_self_longnick")
+        headers = {
+           'Content-Type': 'application/json'
+        }
+        response_text = await self._http.set_request(route, payload, headers, "POST")
+        return response_text
+
+    async def send_like(self,
+                        user_id: str,
+                        times: int):
+        payload = locals()
+        payload.pop("self", None)
+        route = Route("/send_like")
+        headers = {
+           'Content-Type': 'application/json'
+        }
+        response_text = await self._http.set_request(route, payload, headers, "POST")
+        return response_text
 
 
 
