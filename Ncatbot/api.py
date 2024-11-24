@@ -16,6 +16,7 @@ class BotAPI:
                                  video: str = None,
                                  reply: str = None,
                                  music: str = None,
+                                 markdown: str = None,
                                  dic: bool = False,
                                  rps: bool = False,
                                  ):
