@@ -1,6 +1,8 @@
 import aiohttp
 import os
 
+from .utils import markdown_to_image_beautified
+
 class Route:
     def __init__(self, path):
         self.path = path
@@ -36,6 +38,9 @@ class BotHttp:
                     if payload["video"] is not None:
                         data["message"].append({"type":"video","data":{"file":"file://"+os.getcwd().replace('\\', '\\\\')+"\\"+payload["video"]}})
 
+                    if payload["markdown"] is not None:
+                        data["message"].append({"type": "image", "data": {"file": "file://"+ markdown_to_image_beautified(payload["markdown"])}})
+
                     if payload["dic"]:
                         print("error: 错误的使用")
 
@@ -63,6 +68,9 @@ class BotHttp:
                     if payload["video"] is not None:
                         data["message"].append({"type":"video","data":{"file":"file://"+os.getcwd().replace('\\', '\\\\')+"\\"+payload["video"]}})
 
+                    if payload["markdown"] is not None:
+                        data["message"].append({"type": "image", "data": {"file": "file://" + markdown_to_image_beautified(payload["markdown"])}})
+
                     if payload["dic"]:
                         print("error: 错误的使用")
 
@@ -88,6 +96,9 @@ class BotHttp:
 
                     if payload["video"] is not None:
                         data["message"].append({"type":"video","data":{"file":"file://"+os.getcwd().replace('\\', '\\\\')+"\\"+payload["video"]}})
+
+                    if payload["markdown"] is not None:
+                        data["message"].append({"type": "image", "data": {"file": "file://" + markdown_to_image_beautified(payload["markdown"])}})
 
                     if payload["dic"]:
                         print("error: 错误的使用")
