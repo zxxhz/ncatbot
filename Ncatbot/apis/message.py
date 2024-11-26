@@ -8,7 +8,7 @@ class Message(Base):
     def __init__(self, port_or_http: (int, str), sync: bool = False):
         super().__init__(port_or_http=port_or_http, sync=sync)
 
-    async def mark_msg_as_read(self, group_id: str | int = None, user_id: str | int = None) -> dict:
+    async def mark_msg_as_read(self, group_id: (str, int) = None, user_id: (str, int) = None) -> dict:
         """
         设置消息已读
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226657389e0
@@ -22,7 +22,7 @@ class Message(Base):
         }
         return await self.post("/mark_msg_as_read", json=data)
 
-    async def mark_group_msg_as_read(self, group_id: str | int) -> dict:
+    async def mark_group_msg_as_read(self, group_id: (str, int)) -> dict:
         """
         设置群聊已读
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659167e0
@@ -34,7 +34,7 @@ class Message(Base):
         }
         return await self.post("/mark_group_msg_as_read", json=data)
 
-    async def mark_private_msg_as_read(self, user_id: str | int) -> dict:
+    async def mark_private_msg_as_read(self, user_id: (str, int)) -> dict:
         """
         设置私聊已读
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659165e0
@@ -54,7 +54,7 @@ class Message(Base):
         """
         return await self.post("/_mark_all_as_read")
 
-    async def delete_msg(self, message_id: str | int) -> dict:
+    async def delete_msg(self, message_id: (str, int)) -> dict:
         """
         撤回消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226919954e0
@@ -66,7 +66,7 @@ class Message(Base):
         }
         return await self.post("/delete_msg", json=data)
 
-    async def get_msg(self, message_id: str | int) -> dict:
+    async def get_msg(self, message_id: (str, int)) -> dict:
         """
         获取消息详情
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656707e0
@@ -116,7 +116,7 @@ class Message(Base):
         }
         return await self.post("/get_file", json=data)
 
-    async def get_group_msg_history(self, group_id: str | int, message_seq: str | int = None, count: int = None, reverse_order: bool = None) -> dict:
+    async def get_group_msg_history(self, group_id: (str, int), message_seq: (str, int) = None, count: int = None, reverse_order: bool = None) -> dict:
         """
         获取群历史消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226657401e0
@@ -134,7 +134,7 @@ class Message(Base):
         }
         return await self.post("/get_group_msg_history", json=data)
 
-    async def set_msg_emoji_like(self, message_id: str | int, emoji_id: int) -> dict:
+    async def set_msg_emoji_like(self, message_id: (str, int), emoji_id: int) -> dict:
         """
         贴表情
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659104e0
@@ -148,7 +148,7 @@ class Message(Base):
         }
         return await self.post("/set_msg_emoji_like", json=data)
 
-    async def get_friend_msg_history(self, user_id: str | int, message_seq: str | int = None, count: int = None, reverse_order: bool = None) -> dict:
+    async def get_friend_msg_history(self, user_id: (str, int), message_seq: (str, int) = None, count: int = None, reverse_order: bool = None) -> dict:
         """
         获取好友历史消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659174e0
@@ -178,7 +178,7 @@ class Message(Base):
         }
         return await self.post("/get_recent_contact", json=data)
 
-    async def fetch_emoji_like(self, message_id: str | int, emoji_id: str, emoji_type: str = "1") -> dict:
+    async def fetch_emoji_like(self, message_id: (str, int), emoji_id: str, emoji_type: str = "1") -> dict:
         """
         获取贴表情详情
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659219e0
@@ -206,7 +206,7 @@ class Message(Base):
         }
         return await self.post("/get_forward_msg", json=data)
 
-    # async def send_forward_msg(self, group_id: str | int, messages: list, text: str, prompt: str, summary: str, source: str, user_id: str | int) -> dict:
+    # async def send_forward_msg(self, group_id: (str, int), messages: list, text: str, prompt: str, summary: str, source: str, user_id: (str, int)) -> dict:
     #     __import__('warnings').warn('参数过多，懒得搞，先放一边~', DeprecationWarning)
     #     """
     #     发送合并转发消息
