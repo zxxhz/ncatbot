@@ -16,6 +16,8 @@ async def reply_group(message: GroupMessage):
         await message.add_text('hi').add_face(4).add_text('你好').reply()
     elif message.raw_message == "hello":
         await message.rps().reply(reply=True)
+    elif message.raw_message == 'md':
+        await message.add_markdown("""## 案例\n你是谁？\n\n```python\nprint("hi")\n```""").reply()
 
 @bot_client.message(['private'])
 async def reply_private(message: PrivateMessage):

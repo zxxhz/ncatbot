@@ -239,7 +239,7 @@ class User(Base):
     #     return await self.post("/nc_get_user_status", json=data)
 
     # async def get_mini_app_ark(self, type_: str, title: str, desc: str, pic_url: str, jump_url: str) -> dict:
-    #     __import__('warning').warn('需要packetServer服务，等待开发~', DeprecationWarning)
+    #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     获取小程序卡片
     #     https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/227738594e0

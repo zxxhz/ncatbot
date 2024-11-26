@@ -206,30 +206,31 @@ class Message(Base):
         }
         return await self.post("/get_forward_msg", json=data)
 
-    async def send_forward_msg(self, group_id: str | int, text: str, prompt: str, summary: str, source: str, user_id: str | int) -> dict:
-        __import__('warning').warn('参数过多，懒得搞，先放一边~', DeprecationWarning)
-        """
-        发送合并转发消息
-        https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659136e0
-        :param group_id: group_id
-        :param text: text
-        :param prompt: 外显
-        :param summary: 底下文本
-        :param source: 内容
-        :param user_id: user_id
-        :rtype: dict
-        """
-        data = {
-            "group_id": group_id,
-            "messages": self.message,
-            "news": [
-                {
-                    "text": text
-                }
-            ],
-            "prompt": prompt,
-            "summary": summary,
-            "source": source,
-            "user_id": user_id
-        }
-        return await self.post("/send_forward_msg", json=data)
+    # async def send_forward_msg(self, group_id: str | int, messages: list, text: str, prompt: str, summary: str, source: str, user_id: str | int) -> dict:
+    #     __import__('warnings').warn('参数过多，懒得搞，先放一边~', DeprecationWarning)
+    #     """
+    #     发送合并转发消息
+    #     https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659136e0
+    #     :param group_id: group_id
+    #     :param messages: 消息体，每一个都是node节点，node节点下的content才放消息链
+    #     :param text: text
+    #     :param prompt: 外显
+    #     :param summary: 底下文本
+    #     :param source: 内容
+    #     :param user_id: user_id
+    #     :rtype: dict
+    #     """
+    #     data = {
+    #         "group_id": group_id,
+    #         "messages": messages,
+    #         "news": [
+    #             {
+    #                 "text": text
+    #             }
+    #         ],
+    #         "prompt": prompt,
+    #         "summary": summary,
+    #         "source": source,
+    #         "user_id": user_id
+    #     }
+    #     return await self.post("/send_forward_msg", json=data)
