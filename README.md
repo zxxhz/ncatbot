@@ -26,7 +26,7 @@
 - [x] 各类消息注册
 - [x] 各类消息发送
 - [x] 各类接口的定义与测试
-- [x] 群聊发送markdown
+- [ ] 群聊发送markdown
 - [x] 添加了各类设置登录号的接口
 - [ ] 不知道自己还做了什么...
 
@@ -183,4 +183,6 @@ _设置在线机型|set_model_show
 
 ### 想要更多的Star⭐
 
+
 [![Star History Chart](https://api.star-history.com/svg?repos=NcatBot/NcatBot&type=Date)](https://star-history.com/#NcatBot/NcatBot&Date)
+
