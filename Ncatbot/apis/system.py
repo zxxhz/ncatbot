@@ -63,7 +63,7 @@ class System(Base):
         """
         return await self.post("/get_login_info")
 
-    async def set_input_status(self, event_type: int, user_id: str | int) -> dict:
+    async def set_input_status(self, event_type: int, user_id: (str, int)) -> dict:
         """
         设置输入状态
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659225e0
@@ -113,7 +113,7 @@ class System(Base):
         """
         return await self.post("/get_csrf_token")
 
-    async def del_group_notice(self, group_id: str | int, notice_id: str) -> dict:
+    async def del_group_notice(self, group_id: (str, int), notice_id: str) -> dict:
         """
         _删除群公告
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659240e0
@@ -213,7 +213,7 @@ class System(Base):
         """
         return await self.post("/get_version_info")
 
-    # async def get_group_shut_list(self, group_id: str | int) -> dict:
+    # async def get_group_shut_list(self, group_id: (str, int)) -> dict:
     #     __import__('warning').warn('不知道为啥返回老报错,先丢一边~', DeprecationWarning)
     #     """
     #     获取群禁言列表
