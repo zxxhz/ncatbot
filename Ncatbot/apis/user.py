@@ -24,7 +24,7 @@ class User(Base):
         }
         return await self.post("/set_qq_profile", json=data)
 
-    async def ark_share_peer(self, group_id: str | int = None, user_id: str | int = None, phone_number: str = None) -> dict:
+    async def ark_share_peer(self, group_id: (str, int) = None, user_id: (str, int) = None, phone_number: str = None) -> dict:
         """
         获取推荐好友/群聊卡片
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658965e0
@@ -89,7 +89,7 @@ class User(Base):
         }
         return await self.post("/set_qq_avatar", json=data)
 
-    async def send_like(self, user_id: str | int, times: int) -> dict:
+    async def send_like(self, user_id: (str, int), times: int) -> dict:
         """
         点赞
         最大点赞数可设置为20，SVIP当日最高点赞20次，普通用户当日最大点赞10次，不能给自己点赞！
@@ -146,7 +146,7 @@ class User(Base):
         }
         return await self.post("/set_self_longnick", json=data)
 
-    async def get_stranger_info(self, user_id: str | int) -> dict:
+    async def get_stranger_info(self, user_id: (str, int)) -> dict:
         """
         获取账号信息
         可以获取任何QQ的，不限于自己的好友
@@ -191,7 +191,7 @@ class User(Base):
         }
         return await self.post("/fetch_custom_face", json=data)
 
-    async def upload_private_file(self, user_id: str | int, file: str, name: str) -> dict:
+    async def upload_private_file(self, user_id: (str, int), file: str, name: str) -> dict:
         """
         上传私聊文件
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658883e0
@@ -207,7 +207,7 @@ class User(Base):
         }
         return await self.post("/upload_private_file", json=data)
 
-    async def delete_friend(self, friend_id: str | int, user_id: str | int = None, temp_block: bool = False, temp_both_del: bool = False) -> dict:
+    async def delete_friend(self, friend_id: (str, int), user_id: (str, int) = None, temp_block: bool = False, temp_both_del: bool = False) -> dict:
         """
         删除好友
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/227237873e0
@@ -225,7 +225,7 @@ class User(Base):
         }
         return await self.post("/delete_friend", json=data)
 
-    # async def nc_get_user_status(self, user_id: str | int) -> dict:
+    # async def nc_get_user_status(self, user_id: (str, int)) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     获取用户状态

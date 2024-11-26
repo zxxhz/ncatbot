@@ -8,7 +8,7 @@ class Group(Base):
     def __init__(self, port_or_http: (int, str), sync: bool = False):
         super().__init__(port_or_http=port_or_http, sync=sync)
 
-    async def set_group_kick(self, group_id: str | int, user_id: str | int, reject_add_request: bool = None) -> dict:
+    async def set_group_kick(self, group_id: (str, int), user_id: (str, int), reject_add_request: bool = None) -> dict:
         """
         群踢人
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656748e0
@@ -24,7 +24,7 @@ class Group(Base):
         }
         return await self.post("/set_group_kick", json=data)
 
-    async def set_group_ban(self, group_id: str | int, user_id: str | int, duration: int) -> dict:
+    async def set_group_ban(self, group_id: (str, int), user_id: (str, int), duration: int) -> dict:
         """
         群禁言
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656791e0
@@ -40,7 +40,7 @@ class Group(Base):
         }
         return await self.post("/set_group_ban", json=data)
 
-    async def get_group_system_msg(self, group_id: str | int) -> dict:
+    async def get_group_system_msg(self, group_id: (str, int)) -> dict:
         """
         获取群系统消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658660e0
@@ -52,7 +52,7 @@ class Group(Base):
         }
         return await self.post("/get_group_system_msg", json=data)
 
-    async def get_essence_msg_list(self, group_id: str | int) -> dict:
+    async def get_essence_msg_list(self, group_id: (str, int)) -> dict:
         """
         获取群精华消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658664e0
@@ -64,7 +64,7 @@ class Group(Base):
         }
         return await self.post("/get_essence_msg_list", json=data)
 
-    async def set_group_whole_ban(self, group_id: str | int, enable: bool = None) -> dict:
+    async def set_group_whole_ban(self, group_id: (str, int), enable: bool = None) -> dict:
         """
         全体禁言
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656802e0
@@ -78,7 +78,7 @@ class Group(Base):
         }
         return await self.post("/set_group_whole_ban", json=data)
 
-    async def set_group_portrait(self, group_id: str | int, file: str) -> dict:
+    async def set_group_portrait(self, group_id: (str, int), file: str) -> dict:
         """
         设置群头像
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658669e0
@@ -92,7 +92,7 @@ class Group(Base):
         }
         return await self.post("/set_group_portrait", json=data)
 
-    async def set_group_admin(self, group_id: str | int, user_id: str | int, enable: bool = None) -> dict:
+    async def set_group_admin(self, group_id: (str, int), user_id: (str, int), enable: bool = None) -> dict:
         """
         设置群管理
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656815e0
@@ -108,7 +108,7 @@ class Group(Base):
         }
         return await self.post("/set_group_admin", json=data)
 
-    async def set_essence_msg(self, message_id: str | int) -> dict:
+    async def set_essence_msg(self, message_id: (str, int)) -> dict:
         __import__('warnings').warn('目前自己发的消息自己能稳定添加群精华，但别人发的消息可能会无法添加精华消息', DeprecationWarning)
         """
         设置群精华消息
@@ -122,7 +122,7 @@ class Group(Base):
         }
         return await self.post("/set_essence_msg", json=data)
 
-    async def set_group_card(self, group_id: str | int, user_id: str | int, card: str = '') -> dict:
+    async def set_group_card(self, group_id: (str, int), user_id: (str, int), card: str = '') -> dict:
         """
         设置群成员名片
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656913e0
@@ -138,7 +138,7 @@ class Group(Base):
         }
         return await self.post("/set_group_card", json=data)
 
-    async def delete_essence_msg(self, message_id: str | int) -> dict:
+    async def delete_essence_msg(self, message_id: (str, int)) -> dict:
         """
         删除群精华消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658678e0
@@ -150,7 +150,7 @@ class Group(Base):
         }
         return await self.post("/delete_essence_msg", json=data)
 
-    async def set_group_name(self, group_id: str | int, group_name: str) -> dict:
+    async def set_group_name(self, group_id: (str, int), group_name: str) -> dict:
         """
         设置群名
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656919e0
@@ -164,7 +164,7 @@ class Group(Base):
         }
         return await self.post("/set_group_name", json=data)
 
-    async def set_group_leave(self, group_id: str | int) -> dict:
+    async def set_group_leave(self, group_id: (str, int)) -> dict:
         """
         退群
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656926e0
@@ -176,7 +176,7 @@ class Group(Base):
         }
         return await self.post("/set_group_leave", json=data)
 
-    async def send_group_notice(self, group_id: str | int, content: str, image: str = None) -> dict:
+    async def send_group_notice(self, group_id: (str, int), content: str, image: str = None) -> dict:
         """
         _发送群公告
         注意机器人是否是管理员！
@@ -193,7 +193,7 @@ class Group(Base):
         }
         return await self.post("/_send_group_notice", json=data)
 
-    async def get_group_notice(self, group_id: str | int) -> dict:
+    async def get_group_notice(self, group_id: (str, int)) -> dict:
         """
         _获取群公告
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658742e0
@@ -205,7 +205,7 @@ class Group(Base):
         }
         return await self.post("/_get_group_notice", json=data)
 
-    # async def set_group_special_title(self, group_id: str | int, user_id: str | int, special_title: str) -> dict:
+    # async def set_group_special_title(self, group_id: (str, int), user_id: (str, int), special_title: str) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     设置群头衔
@@ -222,7 +222,7 @@ class Group(Base):
     #     }
     #     return await self.post("/set_group_special_title", json=data)
 
-    async def upload_group_file(self, group_id: str | int, file: str, name: str, folder_id: str) -> dict:
+    async def upload_group_file(self, group_id: (str, int), file: str, name: str, folder_id: str) -> dict:
         """
         上传群文件
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658753e0
@@ -258,7 +258,7 @@ class Group(Base):
         }
         return await self.post("/set_group_add_request", json=data)
 
-    async def get_group_info(self, group_id: str | int) -> dict:
+    async def get_group_info(self, group_id: (str, int)) -> dict:
         """
         获取群信息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226656979e0
@@ -270,7 +270,7 @@ class Group(Base):
         }
         return await self.post("/get_group_info", json=data)
 
-    async def get_group_info_ex(self, group_id: str | int) -> dict:
+    async def get_group_info_ex(self, group_id: (str, int)) -> dict:
         """
         获取群信息ex
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659229e0
@@ -282,7 +282,7 @@ class Group(Base):
         }
         return await self.post("/get_group_info_ex", json=data)
 
-    async def create_group_file_folder(self, group_id: str | int, folder_name: str) -> dict:
+    async def create_group_file_folder(self, group_id: (str, int), folder_name: str) -> dict:
         """
         创建群文件文件夹
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658773e0
@@ -296,7 +296,7 @@ class Group(Base):
         }
         return await self.post("/create_group_file_folder", json=data)
 
-    async def delete_group_file(self, group_id: str | int, file_id: str) -> dict:
+    async def delete_group_file(self, group_id: (str, int), file_id: str) -> dict:
         """
         删除群文件
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658755e0
@@ -310,7 +310,7 @@ class Group(Base):
         }
         return await self.post("/delete_group_file", json=data)
 
-    async def delete_group_folder(self, group_id: str | int, folder_id: str) -> dict:
+    async def delete_group_folder(self, group_id: (str, int), folder_id: str) -> dict:
         """
         删除群文件夹
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658779e0
@@ -324,7 +324,7 @@ class Group(Base):
         }
         return await self.post("/delete_group_folder", json=data)
 
-    async def get_group_file_system_info(self, group_id: str | int) -> dict:
+    async def get_group_file_system_info(self, group_id: (str, int)) -> dict:
         """
         获取群文件系统信息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658789e0
@@ -336,7 +336,7 @@ class Group(Base):
         }
         return await self.post("/get_group_file_system_info", json=data)
 
-    async def get_group_root_files(self, group_id: str | int) -> dict:
+    async def get_group_root_files(self, group_id: (str, int)) -> dict:
         """
         获取群根目录文件列表
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658823e0
@@ -348,7 +348,7 @@ class Group(Base):
         }
         return await self.post("/get_group_root_files", json=data)
 
-    async def get_group_files_by_folder(self, group_id: str | int, folder_id: str, file_count: int = None) -> dict:
+    async def get_group_files_by_folder(self, group_id: (str, int), folder_id: str, file_count: int = None) -> dict:
         """
         获取群子目录文件列表
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658865e0
@@ -364,7 +364,7 @@ class Group(Base):
         }
         return await self.post("/get_group_files_by_folder", json=data)
 
-    # async def get_group_file_url(self, group_id: str | int, file_id: str) -> dict:
+    # async def get_group_file_url(self, group_id: (str, int), file_id: str) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     获取群文件资源链接
@@ -391,7 +391,7 @@ class Group(Base):
         }
         return await self.post("/get_group_list", json=data)
 
-    async def get_group_member_info(self, group_id: str | int, user_id: str | int) -> dict:
+    async def get_group_member_info(self, group_id: (str, int), user_id: (str, int)) -> dict:
         """
         获取群成员信息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226657019e0
@@ -405,7 +405,7 @@ class Group(Base):
         }
         return await self.post("/get_group_member_info", json=data)
 
-    async def get_group_member_list(self, group_id: str | int, no_cache: bool = False) -> dict:
+    async def get_group_member_list(self, group_id: (str, int), no_cache: bool = False) -> dict:
         """
         获取群成员列表
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226657034e0
@@ -419,7 +419,7 @@ class Group(Base):
         }
         return await self.post("/get_group_member_list", json=data)
 
-    async def get_group_honor_info(self, group_id: str | int) -> dict:
+    async def get_group_honor_info(self, group_id: (str, int)) -> dict:
         """
         获取群荣誉
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226657036e0
@@ -431,7 +431,7 @@ class Group(Base):
         }
         return await self.post("/get_group_honor_info", json=data)
 
-    async def get_group_at_all_remain(self, group_id: str | int) -> dict:
+    async def get_group_at_all_remain(self, group_id: (str, int)) -> dict:
         """
         获取群 @全体成员 剩余次数
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/227245941e0
@@ -443,7 +443,7 @@ class Group(Base):
         }
         return await self.post("/get_group_at_all_remain", json=data)
 
-    async def get_group_ignored_notifies(self, group_id: str | int) -> dict:
+    async def get_group_ignored_notifies(self, group_id: (str, int)) -> dict:
         """
         获取群过滤系统消息
         https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659323e0
@@ -481,7 +481,7 @@ class Group(Base):
     #     }
     #     return await self.post("/send_group_sign", json=data)
 
-    # async def get_ai_characters(self, group_id: str | int, chat_type: int | str) -> dict:
+    # async def get_ai_characters(self, group_id: (str, int), chat_type: (int, str)) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     获取AI语音人物
@@ -496,7 +496,7 @@ class Group(Base):
     #     }
     #     return await self.post("/get_ai_characters", json=data)
 
-    # async def send_group_ai_record(self, group_id: str | int, character: str, text: str) -> dict:
+    # async def send_group_ai_record(self, group_id: (str, int), character: str, text: str) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     发送群AI语音
@@ -513,7 +513,7 @@ class Group(Base):
     #     }
     #     return await self.post("/send_group_ai_record", json=data)
 
-    # async def get_ai_record(self, group_id: str | int, character: str, text: str) -> dict:
+    # async def get_ai_record(self, group_id: (str, int), character: str, text: str) -> dict:
     #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
     #     """
     #     获取AI语音
