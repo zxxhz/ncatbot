@@ -213,15 +213,15 @@ class System(Base):
         """
         return await self.post("/get_version_info")
 
-    async def get_group_shut_list(self, group_id: str | int) -> dict:
-        __import__('warning').warn('不知道为啥返回老报错,先丢一边~', DeprecationWarning)
-        """
-        获取群禁言列表
-        https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659300e0
-        :param group_id: group_id
-        :rtype: dict
-        """
-        data = {
-            "group_id": group_id
-        }
-        return await self.post("/get_group_shut_list", json=data)
+    # async def get_group_shut_list(self, group_id: str | int) -> dict:
+    #     __import__('warning').warn('不知道为啥返回老报错,先丢一边~', DeprecationWarning)
+    #     """
+    #     获取群禁言列表
+    #     https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226659300e0
+    #     :param group_id: group_id
+    #     :rtype: dict
+    #     """
+    #     data = {
+    #         "group_id": group_id
+    #     }
+    #     return await self.post("/get_group_shut_list", json=data)

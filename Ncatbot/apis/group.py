@@ -109,7 +109,7 @@ class Group(Base):
         return await self.post("/set_group_admin", json=data)
 
     async def set_essence_msg(self, message_id: str | int) -> dict:
-        __import__('warning').warn('目前自己发的消息自己能稳定添加群精华，但别人发的消息可能会无法添加精华消息', DeprecationWarning)
+        __import__('warnings').warn('目前自己发的消息自己能稳定添加群精华，但别人发的消息可能会无法添加精华消息', DeprecationWarning)
         """
         设置群精华消息
         目前自己发的消息自己能稳定添加群精华，但别人发的消息可能会无法添加精华消息
@@ -364,20 +364,20 @@ class Group(Base):
         }
         return await self.post("/get_group_files_by_folder", json=data)
 
-    async def get_group_file_url(self, group_id: str | int, file_id: str) -> dict:
-        __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
-        """
-        获取群文件资源链接
-        https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658867e0
-        :param group_id: group_id
-        :param file_id: file_id
-        :rtype: dict
-        """
-        data = {
-            "group_id": group_id,
-            "file_id": file_id
-        }
-        return await self.post("/get_group_file_url", json=data)
+    # async def get_group_file_url(self, group_id: str | int, file_id: str) -> dict:
+    #     __import__('warnings').warn('需要packetServer服务，等待开发~', DeprecationWarning)
+    #     """
+    #     获取群文件资源链接
+    #     https://apifox.com/apidoc/shared-c3bab595-b4a3-429b-a873-cbbe6b9a1f6a/226658867e0
+    #     :param group_id: group_id
+    #     :param file_id: file_id
+    #     :rtype: dict
+    #     """
+    #     data = {
+    #         "group_id": group_id,
+    #         "file_id": file_id
+    #     }
+    #     return await self.post("/get_group_file_url", json=data)
 
     async def get_group_list(self, no_cache: bool = False) -> dict:
         """
