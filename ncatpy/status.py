@@ -1,8 +1,3 @@
-# _*_ coding:utf-8 _*_
-# https://github.com/gaojj2000
-
-
-# 在线状态
 class Status:
     在线 = {"status": 10, "ext_status": 0}
     Q我吧 = {"status": 60, "ext_status": 0}
