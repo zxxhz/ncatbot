@@ -1,30 +1,14 @@
-# _*_ coding:utf-8 _*_
-# https://github.com/gaojj2000
+# encoding=utf-8
 
 import os
 import asyncio
 import aiohttp
 
+from .setting import SetConfig
 
-# Python3.8版本出现 'staticmethod' object is not callable 报错
-def get_media_path(media_path):
-    """
-    获取媒体的本地绝对路径或网络路径
-    """
-    if media_path:
-        if media_path.startswith('http'):
-            return media_path
-        elif os.path.isfile(media_path):
-            abspath = os.path.abspath(os.path.join(os.getcwd(), media_path)).replace('\\', '\\\\')
-            return f"file:///{abspath}"
-    return ''
+_Set = SetConfig()
 
-
-# Python3.8版本出现 'staticmethod' object is not callable 报错
 def replace_none(fun):
-    """
-    去除 json 参数中为 None 的键值对（装饰器自动操作版）
-    """
     def decorator(*args, **kwargs):
         data = kwargs.get('json', {})
         if data:
@@ -39,27 +23,26 @@ def replace_none(fun):
     return decorator
 
 
-class Base:
-    """
-    请求的基类
-    """
-    def __init__(self, port_or_http: (int, str), sync: bool = False):
-        self.sync = sync  # 是否使用同步请求
+class Route:
+    def __init__(self):
+        self.sync = _Set.sync  # 是否使用同步请求
         self.headers = {'Content-Type': 'application/json'}
-        self.url = port_or_http if str(port_or_http).startswith('http') else f'http://localhost:{port_or_http}'
+        self.url = _Set.http_url
 
     @staticmethod
     def get_media_path(media_path):
         """
-        获取媒体的本地绝对路径或网络路径
+        获取媒体的base64属性、本地绝对路径或网络路径
         """
         if media_path:
-            if media_path.startswith('http'):
+            if media_path.startswith('base64://'):
+                return media_path
+            elif media_path.startswith('http'):
                 return media_path
             elif os.path.isfile(media_path):
                 abspath = os.path.abspath(os.path.join(os.getcwd(), media_path)).replace('\\', '\\\\')
                 return f"file:///{abspath}"
-        return ''
+        return None
     
     @replace_none
     async def get(self, *args, **kwargs):
