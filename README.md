@@ -21,7 +21,6 @@ NcatBot 是基于 onebot11协议 的 Python SDK, 它提供了一套方便易用�
 
 </div>
 
-
 ## 如何使用
 
 ### 用户使用
@@ -48,15 +47,14 @@ NcatBot 是基于 onebot11协议 的 Python SDK, 它提供了一套方便易用�
   1. **仔细阅读**[文档](https://docs.ncatbot.xyz/).
   2. 询问 [DeepSeek](https://chat.deepseek.com), [Kimi](https://kimi.ai) 等人工智能.
   3. 搜索本项目的 [Issue 列表](https://github.com/liyihao1110/ncatbot/issues).
-- 如果以上方法都无法解决你的问题, 那么:
-
-  可以[进群](https://qm.qq.com/q/L6XGXYqL86)提问.
+- 如果以上方法都无法解决你的问题, 那么:可以[进群](https://qm.qq.com/q/L6XGXYqL86)提问.
 
 ## 联系我们
 
-作者: [最可爱的木子喵~](https://gitee.com/li-yihao0328)
+原作者: [🐱最可爱的木子喵~](https://github.com/liyihao1110)
+现维护者: [🐱幻影彭](https://github.com/huan-yp)
 
-邮箱: <lyh_02@foxmail.com>
+联系邮箱: <ncatbot@qq.com>
 
 
 ## 使用限制
