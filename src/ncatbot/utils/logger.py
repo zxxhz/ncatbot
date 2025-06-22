@@ -6,85 +6,15 @@
 # @Description  : 日志类
 # @Copyright (c) 2025 by Fish-LP, Fcatbot使用许可协议
 # -------------------------
-import ctypes
 import logging
 import os
-import sys
 import warnings
-from ctypes import wintypes
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 
 from tqdm import tqdm as tqdm_original
 
 from ncatbot.utils.assets.color import Color
-
-
-def is_ansi_supported():
-    """
-    检查系统是否支持 ANSI 转义序列。
-
-    return:
-        bool: 如果系统支持 ANSI 转义序列返回 True,否则返回 False。
-    """
-    if not sys.platform.startswith("win"):
-        # 非 Windows 系统通常支持 ANSI 转义序列
-        return True
-
-    # 检查 Windows 版本
-    is_windows_10_or_higher = False
-    try:
-        # 获取 Windows 版本信息
-        version_info = sys.getwindowsversion()
-        major_version = version_info[0]
-        # build_number = version_info[3]
-
-        # Windows 10 (major version 10) 或更高版本
-        if major_version >= 10:
-            is_windows_10_or_higher = True
-    except AttributeError:
-        # 如果无法获取版本信息,假设不支持
-        return False
-
-    # 检查控制台是否支持虚拟终端处理
-    kernel32 = ctypes.windll.kernel32
-    stdout_handle = kernel32.GetStdHandle(-11)
-    if stdout_handle == wintypes.HANDLE(-1).value:
-        return False
-
-    # 获取当前控制台模式
-    console_mode = wintypes.DWORD()
-    if not kernel32.GetConsoleMode(stdout_handle, ctypes.byref(console_mode)):
-        return False
-
-    # 检查是否支持虚拟终端处理
-    return (console_mode.value & 0x0004) != 0 or is_windows_10_or_higher
-
-
-def set_console_mode(mode=7):
-    """
-    设置控制台输出模式。
-
-    Args
-        mode (int): 控制台模式标志,默认为7（ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING）。
-
-    return:
-        bool: 如果操作成功返回True,否则返回False。
-    """
-    try:
-        kernel32 = ctypes.windll.kernel32
-        # 获取标准输出句柄
-        stdout_handle = kernel32.GetStdHandle(-11)
-        if stdout_handle == wintypes.HANDLE(-1).value:
-            return False
-
-        # 设置控制台模式
-        if not kernel32.SetConsoleMode(stdout_handle, mode):
-            return False
-    except Exception:
-        return False
-    return True
-
 
 # 定义自定义的 tqdm 类,继承自原生的 tqdm 类
 class tqdm(tqdm_original):
