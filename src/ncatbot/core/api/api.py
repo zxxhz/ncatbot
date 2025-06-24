@@ -1151,7 +1151,7 @@ class BotAPI(SYNC_API_MIXIN):
         payload = await self._construct_forward_message(messages)
         payload["group_id"] = group_id
 
-        return await self._http.post("/send_private_forward_msg", payload)
+        return await self._http.post("/send_group_forward_msg", payload)
 
     # ---------------------
     # region 系统接口
