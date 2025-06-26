@@ -45,7 +45,7 @@ def run_func_sync(func, *args, **kwargs):
 
             t = Thread(target=task, daemon=True)
             t.start()
-            t.join(timeout=5)
+            t.join(timeout=300)
             if len(result) == 0:
                 raise TimeoutError("异步函数执行超时")
             else:
