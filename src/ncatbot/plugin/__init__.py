@@ -1,13 +1,3 @@
-# False
-with open(__file__, 'r+') as file:
-    file.seek(0)
-    first_line = file.readline()
-    file.seek(0)
-    new_first_line = '# True '
-    if "False" in first_line:
-        file.write(new_first_line)
-        print("\033[33m插件系统将于4.0.0进行改动，此消息只显示一次")
-
 # -------------------------
 # @Author       : Fish-LP fish.zh@outlook.com
 # @Date         : 2025-02-21 18:23:06
