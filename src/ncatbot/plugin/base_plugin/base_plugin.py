@@ -86,7 +86,10 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
     - `this_file_path (Path)`: 插件主文件路径
     - `meta_data (dict)`: 插件元数据字典
     - `data (UniversalLoader)`: 插件数据管理器实例
-    - `api (WebSocketHandler)`: API调用接口实例
+    - `save_type`(str): `data` 数据保存类型 (默认 'json')
+    - `file_encoding`(str): `data` 文件编码（默认 'utf-8'）
+    - `realtime_save`(bool): `data` 行为，实时保存（默认 False）
+    - `realtime_load`(bool): `data` 行为，实时读取，需要`watchdog`（默认 False）
 
     ## 目录管理
     - `work_space (ChangeDir)`: 工作目录上下文管理器
@@ -114,7 +117,10 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
     dependencies: dict
     author: str = "Unknown"
     info: str = "这个作者很懒且神秘,没有写一点点描述,真是一个神秘的插件"
-    save_type: str = "json"
+    save_type: str = 'json'
+    file_encoding: str = 'utf-8'
+    realtime_save: bool = False
+    realtime_load: bool = False
 
     self_path: Path
     this_file_path: Path
@@ -187,7 +193,13 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
         if not self._work_path.is_dir():
             raise PluginLoadError(self.name, f"{self._work_path} 不是目录文件夹")
 
-        self.data = UniversalLoader(self._data_path, self.save_type)
+        self._data = UniversalLoader(
+            file_path=self._data_path,
+            file_encoding=self.file_encoding,
+            file_type=self.save_type,
+            realtime_save=self.realtime_save,
+            realtime_load=self.realtime_load
+        )
         self.data["config"] = {}
         self.work_space = ChangeDir(self._work_path)
         self.self_space = ChangeDir(self.self_path)
@@ -215,9 +227,7 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
         await self.on_close(*arg, **kwd)
         try:
             if self.debug:
-                LOG.warning(
-                    f"{Color.YELLOW}debug模式{Color.RED}取消{Color.RESET}退出时的保存行为"
-                )
+                LOG.warning(f"{Color.YELLOW}debug模式下将{Color.RED}取消{Color.YELLOW}退出时的默认保存行为{Color.RESET}")
                 print(
                     f"{Color.GRAY}{self.name}\n",
                     "\n".join(visualize_tree(self.data)),
