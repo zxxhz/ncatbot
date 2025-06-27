@@ -205,6 +205,17 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
         self.self_space = ChangeDir(self.self_path)
 
     @property
+    def data(self) -> UniversalLoader:
+        return self._data
+
+    @data.setter
+    def data_settrt(self, value: UniversalLoader):
+        """设置数据加载器"""
+        if not isinstance(value, UniversalLoader):
+            raise TypeError("data 必须是 UniversalLoader 实例")
+        self._data = value
+
+    @property
     def debug(self) -> bool:
         """是否处于调试模式"""
         return self._debug
@@ -245,19 +256,18 @@ class BasePlugin(EventHandlerMixin, SchedulerMixin, BuiltinFuncMixin):
         执行插件加载时的初始化工作,加载数据
 
         Raises:
-            RuntimeError: 读取持久化数据失败时抛出
+            RuntimeError: 读取持久化数据失败时抛出'
+            
+        Note:
+            load时传入的参数作为属性被保存在self中
         """
-        # load时传入的参数作为属性被保存在self中
-        if isinstance(self.data, (dict, list)):
-            pass
-            # data_loader = UniversalLoader(self._data_path, self.save_type)
         try:
             self.data.load()
         except (FileTypeUnknownError, LoadError, FileNotFoundError):
             if self.debug:
                 pass
             else:
-                open(self._data_path, "w").write("")
+                open(self._data_path, "w", encoding=self.file_encoding).write("")
                 self.data.save()
                 self.data.load()
         await asyncio.to_thread(self._init_)
