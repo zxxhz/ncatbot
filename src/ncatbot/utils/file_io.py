@@ -95,7 +95,7 @@ def convert_uploadable_object(i, message_type):
 # @Author       : Fish-LP fish.zh@outlook.com
 # @Date         : 2025-02-13 21:47:01
 # @LastEditors  : Fish-LP fish.zh@outlook.com
-# @LastEditTime : 2025-06-26 19:24:36
+# @LastEditTime : 2025-07-08 13:09:51
 # @Description  : 通用文件加载器，支持JSON/TOML/YAML/PICKLE格式的同步/异步读写
 # @Copyright (c) 2025 by Fish-LP, Fcatbot使用许可协议
 # -------------------------
@@ -107,7 +107,7 @@ def convert_uploadable_object(i, message_type):
 注意:
     1. UniversalLoader 并不是一个专门用于处理纯列表的工具
     2. 读取未知来源的pickle文件可能导致任意代码执行漏洞请手动开启支持
-    3. 创建UniversalLoader实例后不会立刻读取文件,请手动调用load或者aload读取文件
+    3. 创建UniversalLoader实例后会立刻读取文件
 
 Raises:
     FileTypeUnknownError:       当文件类型无法识别时抛出
@@ -131,8 +131,10 @@ from typing import Any, Callable, Dict, Literal, Optional, Union
 # region 常量
 # ---------------------
 
-# 文件操作防抖时间(1ms)
-FILE_DEBOUNCE_TIME = 0.001
+# 文件操作防抖时间(100ms)
+# ! 此值过高只会造成读取延迟，但是过低会导致频繁触发保存操作
+# ! 需要根据实际情况调整
+FILE_DEBOUNCE_TIME = 0.1
 
 # regionend
 
@@ -340,6 +342,7 @@ class UniversalLoader(dict):
         realtime_save: bool = False,
         realtime_load: bool = False,
         file_type: Optional[str] = None,
+        default: dict = {},
     ):
         """
         初始化通用加载器。
@@ -351,7 +354,7 @@ class UniversalLoader(dict):
             realtime_load: 是否启用实时读取
             file_type: 手动指定文件类型
         """
-        super().__init__()
+        super().__init__(default)
         self._file_path: Path = Path(file_path).resolve()
         self._file_encoding: str = file_encoding
         self._file_type = file_type.lower() if file_type else self._detect_file_type(self._file_path)
@@ -359,10 +362,10 @@ class UniversalLoader(dict):
         self._observer = None
         self._realtime_save = realtime_save
         self._on_modified_callbacks = []
-        
         # 检查模块可用性
         self._check_module_availability()
         
+        self.load()  # 初始化时加载数据
         # 动态重写方法以支持实时保存
         if realtime_save:
             self._wrap_methods_for_realtime_save()
@@ -388,6 +391,7 @@ class UniversalLoader(dict):
         """文件类型"""
         return self._file_type
 
+    @property
     def file_encoding(self) -> str:
         """文件编码"""
         return self._file_type
@@ -467,9 +471,14 @@ class UniversalLoader(dict):
 
     @staticmethod
     def _check_file_exists(path: Path) -> None:
-        """检查文件是否存在"""
-        if not path.is_file():
-            raise FileNotFoundError(f"文件路径无效或不是文件: {path}")
+        """文件检查逻辑"""
+        if not path.exists():
+            # 创建父目录
+            path.parent.mkdir(parents=True, exist_ok=True)
+            # 创建空文件
+            path.touch()
+        elif not path.is_file():
+            raise FileNotFoundError(f"路径不是文件: {path}")
 
     async def _async_check_file_exists(self) -> None:
         """异步检查文件是否存在"""
@@ -508,9 +517,11 @@ class UniversalLoader(dict):
         """同步保存数据到文件"""
         save_path = Path(save_path).resolve() if save_path else self._file_path
         try:
+            # 确保目录存在
+            save_path.parent.mkdir(parents=True, exist_ok=True)
             self._save_data_sync(save_path)
         except Exception as e:
-            raise SaveError(f"保存文件时出错: {e}") from e
+            raise SaveError(f"保存失败: {e}") from e
         return self
 
     async def asave(self, save_path: Optional[Union[str, Path]] = None) -> 'UniversalLoader':
@@ -547,12 +558,6 @@ class UniversalLoader(dict):
         encode_values: bool = True
     ) -> Any:
         """类型转换主方法"""
-        # 处理自定义类型
-        if hasattr(data, '__class__') and data.__class__.__name__ in self._custom_type_handlers:
-            if mode == 'preserve':
-                return self._preserve_item(data)
-            return self._restore_item(data)
-        
         # 处理容器类型
         if isinstance(data, dict):
             return {
@@ -577,32 +582,23 @@ class UniversalLoader(dict):
 
     def _preserve_item(self, item: Any) -> str:
         """保留类型的信息转换"""
-        flag = self._flag
-
         if item is None:
-            return f"NoneType{flag}None"
-            
-        type_name = item.__class__.__name__
+            return f"NoneType{self._flag}None"
+        
+        item_type = type(item)
+        type_name = item_type.__name__
+        
+        # 处理基础类型
+        if item_type in (int, float, str, bool):
+            return f"{type_name}{self._flag}{item}"
         
         # 处理自定义类型
         if type_name in self._custom_type_handlers:
             serialize_func = self._custom_type_handlers[type_name][0]
-            return f"{type_name}{flag}{serialize_func(item)}"
-            
-        # 处理基础类型
-        if isinstance(item, (int, float, str, bool)):
-            return f"{type_name}{flag}{item}"
-        elif isinstance(item, type(None)):
-            return f"NoneType{flag}None"
-            
-        # 处理容器类型
-        elif isinstance(item, (list, tuple, dict, set)):
-            container_type = type(item).__name__
-            preserved = [self._type_convert(i, 'preserve') for i in item]
-            return f"{container_type}{flag}{json.dumps(preserved)}"
-                
-        # 其他类型保持原样
-        return f"unknown{flag}{str(item)}"
+            return f"{type_name}{self._flag}{serialize_func(item)}"
+        
+        # 其他类型转为字符串
+        return f"unknown{self._flag}{str(item)}"
 
     def _restore_item(self, item: Any) -> Any:
         """恢复原始类型转换"""
@@ -770,7 +766,7 @@ class UniversalLoader(dict):
 
 # UUID支持
 from uuid import UUID
-def uuid_serialize(uuid_obj):
+def uuid_serialize(uuid_obj: UUID):
     return str(uuid_obj)
 
 def uuid_deserialize(uuid_str):
@@ -780,7 +776,7 @@ UniversalLoader.register_type_handler('UUID', uuid_serialize, uuid_deserialize)
 
 # datetime支持
 from datetime import datetime
-def datetime_serialize(dt):
+def datetime_serialize(dt: datetime):
     return dt.isoformat()
 
 def datetime_deserialize(dt_str):
@@ -790,7 +786,7 @@ UniversalLoader.register_type_handler('datetime', datetime_serialize, datetime_d
 
 # Decimal支持
 from decimal import Decimal
-def decimal_serialize(dec):
+def decimal_serialize(dec: Decimal):
     return str(dec)
 
 def decimal_deserialize(dec_str):
