@@ -475,7 +475,7 @@ class PluginLoader:
                 f"插件目录: {os.path.abspath(plugins_path)} 不存在......跳过加载插件"
             )
 
-    def load_compatible_data(self):
+    def load_compatible_data(self, selected_plugins: List[BasePlugin] = None):
         """
         加载兼容注册事件
         """
@@ -484,6 +484,16 @@ class PluginLoader:
             for func, priority, in_class in packs:
                 if in_class:
                     for plugin_name, plugin in self.plugins.items():
+
+                        def skip_plugin():
+                            if selected_plugins is None:
+                                return False
+                            if plugin_name in [plg.name for plg in selected_plugins]:
+                                return False
+                            return True
+
+                        if skip_plugin():
+                            continue
                         if (
                             plugin.__class__.__qualname__
                             == func.__qualname__.split(".")[0]
@@ -495,6 +505,38 @@ class PluginLoader:
                     LOG.warning("该方法即将弃用...")
                     self.event_bus.subscribe(event_type, func, priority)
 
+    def unload_compatible_data(self, selected_plugins: List[BasePlugin] = None):
+        """
+        卸载兼容注册事件
+        """
+        compatible = CompatibleEnrollment.events
+        for event_type, packs in compatible.items():
+            for func, priority, in_class in packs:
+                if in_class:
+                    for plugin_name, plugin in self.plugins.items():
+
+                        def skip_plugin():
+                            if selected_plugins is None:
+                                return False
+                            if plugin_name in [plg.name for plg in selected_plugins]:
+                                return False
+                            return True
+
+                        if skip_plugin():
+                            continue
+                        if (
+                            plugin.__class__.__qualname__
+                            == func.__qualname__.split(".")[0]
+                        ):
+                            CompatibleEnrollment.events[event_type].remove(
+                                (func, priority, in_class)
+                            )
+                            break
+                else:
+                    pass
+                    # LOG.warning("该方法即将弃用...")
+                    # self.event_bus.unsubscribe(event_type, func, priority)
+
     async def unload_plugin(self, plugin_name: str, *arg, **kwd):
         """
         卸载插件
@@ -503,6 +545,7 @@ class PluginLoader:
         if plugin_name not in self.plugins:
             return
 
+        self.unload_compatible_data([self.plugins[plugin_name]])
         self.event_bus.remove_plugin(self.plugins[plugin_name])
         await self.plugins[plugin_name].__unload__(*arg, **kwd)
         del self.plugins[plugin_name]
@@ -573,6 +616,7 @@ class PluginLoader:
                 # 添加到插件列表
                 self.plugins[plugin_name] = new_plugin
                 self.event_bus.add_plugin(new_plugin)
+                self.load_compatible_data([new_plugin])
 
                 LOG.info(f"插件 {plugin_name} 重载成功")
                 return True
