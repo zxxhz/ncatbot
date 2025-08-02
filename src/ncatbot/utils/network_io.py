@@ -47,15 +47,15 @@ def get_proxy_url():
     TIMEOUT = 5
     github_proxy_urls = [
         "https://ghfast.top/",
-        "https://github.7boe.top/",
-        "https://cdn.moran233.xyz/",
-        "https://gh-proxy.ygxz.in/",
-        "https://github.whrstudio.top/",
-        "https://proxy.yaoyaoling.net/",
-        "https://ghproxy.net/",
-        "https://fastgit.cc/",
-        "https://git.886.be/",
-        "https://gh-proxy.com/",
+        # "https://github.7boe.top/",
+        # "https://cdn.moran233.xyz/",
+        # "https://gh-proxy.ygxz.in/",
+        # "https://github.whrstudio.top/",
+        # "https://proxy.yaoyaoling.net/",
+        # "https://ghproxy.net/",
+        # "https://fastgit.cc/",
+        # "https://git.886.be/",
+        # "https://gh-proxy.com/",
     ]
     result_queue = Queue(maxsize=1)
 
