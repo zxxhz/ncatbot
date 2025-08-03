@@ -162,14 +162,15 @@ class LoginHandler:
                 headers=self.header,
                 json={"uin": str(config.bt_uin)},
                 timeout=5,
-            ).json().get("message", "failed") in ["success", "QQ Is Logined"]
-            return status
+            ).json()
+            success = status.get("message", "failed") in ["success"]
+            if not success:
+                LOG.warning(f"快速登录请求失败: {status}")
+            return success
         except TimeoutError:
             LOG.warning("快速登录失败, 进行其它登录尝试")
-            pass
 
     def get_qrcode_url(self):
-        pass
         EXPIRE = time.time() + 15
         while time.time() < EXPIRE:
             time.sleep(0.2)
@@ -179,10 +180,12 @@ class LoginHandler:
                     headers=self.header,
                     timeout=5,
                 ).json()
-                print(data)
-                val = data["qrcode"]
+                val = data.get("data", {}).get("qrcode", None)
                 if val is not None and val != "":
                     return val
+                else:
+                    LOG.error(f"获取二维码失败: {data}")
+                    raise Exception("获取二维码失败")
             except TimeoutError:
                 pass
 
@@ -197,13 +200,16 @@ class LoginHandler:
                 self.base_uri + "/api/QQLogin/GetQQLoginInfo",
                 headers=self.header,
                 timeout=5,
-            ).json()["data"]
+            ).json().get("data", {})
         except TimeoutError:
             LOG.warning("获取登录信息超时, 默认未登录")
             return None
+        
 
     def is_target_qq_online(self) -> bool:
         info = self.get_qq_login_info()
+        if info is None or "online" not in info or "uin" not in info:
+            return False
         return info["online"] and str(info["uin"]) == str(config.bt_uin)
 
     def _qrcode_login(self):
@@ -257,7 +263,7 @@ class LoginHandler:
             return 0
 
     def login(self):
-        pass
+        self._login()
 
 
 def login(reset=False):
