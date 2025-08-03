@@ -513,6 +513,12 @@ class UniversalLoader(dict):
             path.parent.mkdir(parents=True, exist_ok=True)
             # 创建空文件
             path.touch()
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(
+                    """{
+    "config": {}
+}"""
+                )
         elif not path.is_file():
             raise FileNotFoundError(f"路径不是文件: {path}")
 
