@@ -123,12 +123,17 @@ def stop_napcat_windows():
     """停止 NapCat 服务: 在 Windows 上强制结束 QQ.exe 进程"""
     try:
         # 使用 taskkill 强制结束 QQ.exe 进程
-        subprocess.run(["taskkill", "/F", "/IM", "QQ.exe"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(
+            ["taskkill", "/F", "/IM", "QQ.exe"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         LOG.info("已成功停止 QQ.exe 进程（NapCat 服务）")
     except subprocess.CalledProcessError as e:
         # 如果 taskkill 命令执行失败，记录错误并抛出异常
-        stdout = e.stdout.decode(errors='ignore') if e.stdout else ''
-        stderr = e.stderr.decode(errors='ignore') if e.stderr else ''
+        stdout = e.stdout.decode(errors="ignore") if e.stdout else ""
+        stderr = e.stderr.decode(errors="ignore") if e.stderr else ""
         LOG.error(f"停止 NapCat 服务失败: {stderr or stdout}")
         raise RuntimeError(f"无法停止 QQ.exe 进程: {stderr or stdout}")
 
@@ -170,29 +175,46 @@ def config_napcat():
     napcat_dir = get_napcat_dir()
 
     def config_onebot11():
-        expected_data = {
-            "network": {
-                "websocketServers": [
-                    {
-                        "name": "WsServer",
-                        "enable": True,
-                        "host": config.ws_listen_ip,
-                        "port": int(urlparse(config.ws_uri).port),
-                        "messagePostFormat": "array",
-                        "reportSelfMessage": config.report_self_message,
-                        "token": (
-                            str(config.ws_token) if config.ws_token is not None else ""
-                        ),
-                        "enableForcePushEvent": True,
-                        "debug": False,
-                        "heartInterval": 30000,
-                    }
-                ],
-            },
-            "musicSignUrl": "",
-            "enableLocalFile2Url": False,
-            "parseMultMsg": False,
+        if os.path.exists(
+            os.path.join(
+                napcat_dir, "config", "onebot11_" + str(config.bt_uin) + ".json"
+            )
+        ):
+            original_data = json.load(
+                open(
+                    os.path.join(
+                        napcat_dir, "config", "onebot11_" + str(config.bt_uin) + ".json"
+                    ),
+                    "r",
+                    encoding="utf-8",
+                )
+            )
+
+        expected_server_config = {
+            "name": "WsServer",
+            "enable": True,
+            "host": config.ws_listen_ip,
+            "port": int(urlparse(config.ws_uri).port),
+            "messagePostFormat": "array",
+            "reportSelfMessage": config.report_self_message,
+            "token": (str(config.ws_token) if config.ws_token is not None else ""),
+            "enableForcePushEvent": True,
+            "debug": False,
+            "heartInterval": 30000,
         }
+        if expected_server_config in original_data["network"]["websocketServers"]:
+            pass
+        else:
+            for server_config in original_data["network"]["websocketServers"]:
+                if server_config["port"] == int(urlparse(config.ws_uri).port):
+                    LOG.error(
+                        f"原配置对应的端口 {server_config['port']} 已经存在, 请更改端口"
+                    )
+                    raise ValueError(
+                        f"原配置对应的端口 {server_config['port']} 已经存在, 请更改端口"
+                    )
+            original_data["network"]["websocketServers"].append(expected_server_config)
+
         try:
             with open(
                 os.path.join(
@@ -203,7 +225,7 @@ def config_napcat():
                 "w",
                 encoding="utf-8",
             ) as f:
-                json.dump(expected_data, f, indent=4, ensure_ascii=False)
+                json.dump(original_data, f, indent=4, ensure_ascii=False)
         except Exception as e:
             LOG.error("配置 onebot 失败: " + str(e))
             if not check_permission():
