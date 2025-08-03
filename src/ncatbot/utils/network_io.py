@@ -42,7 +42,7 @@ def download_file(url, file_name):
 
 def get_proxy_url():
     """获取 github 代理 URL"""
-    if config.github_proxy is not None:
+    if config.github_proxy is not None and config.github_proxy != "":
         return config.github_proxy
     TIMEOUT = 5
     github_proxy_urls = [

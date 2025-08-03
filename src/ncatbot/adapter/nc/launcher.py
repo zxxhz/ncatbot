@@ -3,8 +3,8 @@ import platform
 import time
 
 from ncatbot.adapter.nc.install import install_or_update_napcat
-from ncatbot.adapter.nc.login import BotUINError, login
-from ncatbot.adapter.nc.start import start_napcat
+from ncatbot.adapter.nc.login import login, report_login_status
+from ncatbot.adapter.nc.start import start_napcat, stop_napcat
 from ncatbot.adapter.net import check_websocket
 from ncatbot.utils import config, get_log
 
@@ -45,42 +45,32 @@ def connect_napcat():
     LOG.info("连接 napcat websocket 服务器成功!")
 
 
-def ncatbot_service_remote_start():
+def napcat_service_remote_start():
     """尝试以远程模式连接到 NapCat 服务"""
     if napcat_service_ok():
         LOG.info(f"napcat 服务器 {config.ws_uri} 在线, 连接中...")
-        LOG.warning("3xx 版本未适应 NapCat 新特性，无法检查账号正确性")
-        LOG.warning(f"请自行确保 NapCat 已经登录了正确的 QQ {config.bt_uin}")
-        return True
-    #     if not config.enable_webui_interaction:  # 跳过基于 WebUI 交互的检查
-    #         LOG.warning(
-    #             f"跳过基于 WebUI 交互的检查, 请自行确保 NapCat 已经登录了正确的 QQ {config.bt_uin}"
-    #         )
-    #         return True
-    #     if not online_qq_is_bot():
-    #         if not config.remote_mode:
-    #             # 如果账号不对并且是本地模式, 则停止 NapCat 服务后重新启动
-    #             stop_napcat()
-    #             return False
-    #         else:
-    #             LOG.error(
-    #                 "远端的 NapCat 服务 QQ 账号信息与本地 bot_uin 不匹配, 请检查远端 NapCat 配置"
-    #             )
-    #             raise Exception("账号错误")
-    #     return True
-    # elif config.remote_mode:
-    #     LOG.error("远程模式已经启用, 无法到连接远程 NapCat 服务器, 将自动退出")
-    #     LOG.error(f'服务器参数: uri="{config.ws_uri}", token="{config.ws_token}"')
-    #     LOG.info(
-    #         """可能的错误原因:
-    #                 1. napcat webui 中服务器类型错误, 应该为 "WebSocket 服务器", 而非 "WebSocket 客户端"
-    #                 2. napcat webui 中服务器配置了但没有启用, 请确保勾选了启用服务器"
-    #                 3. napcat webui 中服务器 host 没有设置为监听全部地址, 应该将 host 改为 0.0.0.0
-    #                 4. 检查以上配置后, 在本机尝试连接远程的 webui ,使用 error 信息中的的服务器参数, \"接口调试\"选择\"WebSocket\"尝试连接.
-    #                 5. webui 中连接成功后再尝试启动 ncatbot
-    #                 """
-    #     )
-    #     raise Exception("服务器离线")
+        if not config.enable_webui_interaction:  # 跳过基于 WebUI 交互的检查
+            LOG.warning(
+                f"跳过基于 WebUI 交互的检查, 请自行确保 NapCat 已经登录了正确的 QQ {config.bt_uin}"
+            )
+            return True
+        status = report_login_status()
+        if status == 0:
+            return True
+        else:
+            if status == 3:
+                LOG.error("登录状态异常, 请检查远端 NapCat 服务")
+                LOG.error("对运行 NapCat 的服务器进行物理重启一般能解决该问题")
+                raise Exception("登录状态异常, 请检查远端 NapCat 服务")
+            if status == 2:
+                LOG.error(
+                    f"登录的 QQ 号 {config.bt_uin} 与配置的 QQ 号不匹配, 请检查远端 NapCat 服务"
+                )
+                raise Exception(
+                    "登录的 QQ 号与配置的 QQ 号不匹配, 请检查远端 NapCat 服务"
+                )
+            if status == 1:
+                LOG.error("远端 NapCat 服务未登录, 请完成登录流程")
 
     LOG.info("NapCat 服务器离线, 启动本地 NapCat 服务中...")
     return False
@@ -96,21 +86,47 @@ def launch_napcat_service(*args, **kwargs):
     4. NapCat 登录 QQ
     5. 连接 NapCat 服务
     """
-    if ncatbot_service_remote_start():
-        return True
-
-    install_or_update_napcat()
-    start_napcat()  # 配置、启动 NapCat 服务
-    try:
-        if config.enable_webui_interaction:  # 如果允许 webui 交互, 则做登录引导
+    if config.remote_mode:
+        if napcat_service_remote_start():
+            return True
+        else:
+            raise Exception("远端 NapCat 服务异常, 请检查远端 NapCat 服务")
+    else:
+        if napcat_service_ok():
+            if not config.enable_webui_interaction:
+                LOG.warning(
+                    "跳过基于 WebUI 交互的检查, 请自行确保 NapCat 已经登录了正确的 QQ {config.bt_uin}"
+                )
+                return True
+            else:
+                status = report_login_status()
+                if status == 0:
+                    return True
+                elif status == 1:
+                    LOG.error("未登录")
+                elif status == 2:
+                    LOG.error(
+                        f"登录的 QQ 号 {config.bt_uin} 与配置的 QQ 号不匹配, 重启服务中..."
+                    )
+                    stop_napcat()
+                    return launch_napcat_service(*args, **kwargs)
+                elif status == 3:
+                    LOG.error("登录状态异常, 重启服务中...")
+                    if platform.system() == "Windows":
+                        stop_napcat()
+                        return launch_napcat_service(*args, **kwargs)
+                    else:
+                        LOG.error("非 Windows 系统一般需要进行物理重启解决该问题")
+                        raise Exception("登录状态异常, 请物理重启本机")
+        else:
+            install_or_update_napcat()
+            start_napcat()  # 配置、启动 NapCat 服务
+        if config.enable_webui_interaction:
             if not napcat_service_ok():
                 login(reset=True)  # NapCat 登录 QQ
             else:
                 LOG.info("快速登录成功, 跳过登录引导")
-    except BotUINError:  # 我也不知道, 后面可能会把这玩意删了
-        LOG.error("我觉得这个错误不该有, 如果遇到了请联系开发者")
-        return False
-        # stop_napcat()
-        # launch_napcat_service(*args, **kwargs)
-    connect_napcat()  # 连接 NapCat 服务
-    return True
+        else:
+            LOG.warning("禁用了 WEBUI 操作, 请自行完成登录")
+        connect_napcat()  # 连接 NapCat 服务
+        return True

@@ -189,6 +189,15 @@ def config_napcat():
                     encoding="utf-8",
                 )
             )
+        else:
+            original_data = {
+                "network": {
+                    "websocketServers": [],
+                },
+                "musicSignUrl": "",
+                "enableLocalFile2Url": False,
+                "parseMultMsg": False,
+            }
 
         expected_server_config = {
             "name": "WsServer",

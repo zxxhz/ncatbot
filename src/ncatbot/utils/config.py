@@ -165,6 +165,9 @@ class SetConfig:
             self.bt_uin = str(self.bt_uin)
             self.root = str(self.root)
 
+        def is_wsuri_local():
+            return self.ws_host == "localhost" or self.ws_host == "127.0.0.1"
+
         # 转为 str
         to_str()
 
@@ -203,6 +206,21 @@ class SetConfig:
         # 检验 webui_uri
         self._standardize_webui_uri()
 
+        # 检查远端模式设置
+        if self.remote_mode and is_wsuri_local():
+            LOG.warning("远端模式下, ws_uri 不能为本地地址, 请检查配置")
+            y = (
+                "y"
+                == input(
+                    "如果你使用了 docker 并且已经在本机手动完成了 NapCat 配置, 请输入 y 并回车继续"
+                ).lower()
+            )
+        if not self.remote_mode and not is_wsuri_local():
+            LOG.warning("非远端模式下, ws_uri 不能为非本地地址, 请检查配置")
+            LOG.warning("将强制使用远端模式")
+            time.sleep(5)
+            self.remote_mode = True
+
     def _standardize_ws_uri(self):
         if not (self.ws_uri.startswith("ws://") or self.ws_uri.startswith("wss://")):
             self.ws_uri = f"ws://{self.ws_uri}"
@@ -215,6 +233,11 @@ class SetConfig:
             or self.webui_uri.startswith("https://")
         ):
             self.webui_uri = f"http://{self.webui_uri}"
+        if self.webui_uri.startswith("https://"):
+            LOG.warning(
+                "请注意, 当前配置的 NapCat webui 地址为 https, 我们建议用 http，如果你确实配置了 SSL 证书，请忽略该警告"
+            )
+            time.sleep(2.5)
         self.webui_host = urllib.parse.urlparse(self.webui_uri).hostname
         self.webui_port = urllib.parse.urlparse(self.webui_uri).port
 
