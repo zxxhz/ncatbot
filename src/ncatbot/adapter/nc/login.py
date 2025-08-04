@@ -12,12 +12,18 @@ from urllib3.exceptions import NewConnectionError
 # import qreader
 from ncatbot.utils import NAPCAT_WEBUI_SALT, config, get_log
 
+
+class QQLoginedError(Exception):
+    def __init__(self):
+        super().__init__("QQ 已登录")
+
+
 LOG = get_log("adapter.nc.login")
 main_handler = None
 
 
 def show_qrcode(qrcode_url):
-    LOG.info(f"二维码指代的 url 地址: {qrcode_url}")
+    LOG.info(f"二维码对应的 QQ 号: {config.bt_uin}")
     qr = qrcode.QRCode()
     qr.add_data(qrcode_url)
     qr.print_ascii(invert=True)
@@ -107,8 +113,9 @@ class LoginHandler:
                     if time.time() > MAX_TIME_EXPIER:
                         LOG.error("授权操作超时")
                         LOG.info(
-                            "请检查 Windows 安全中心, 查看是否有拦截了 NapCat 启动程序的日志"
+                            "考虑在启动参数中加入 enable_webui_interaction=False 跳过"
                         )
+                        LOG.info("bot.run(enable_webui_interaction=False)")
                         raise Exception("连接 WebUI 失败")
                 elif platform.system() == "Linux":
                     if time.time() > MAX_TIME_EXPIER:
@@ -181,30 +188,33 @@ class LoginHandler:
                     timeout=5,
                 ).json()
                 val = data.get("data", {}).get("qrcode", None)
+                if data.get("message", None) == "QQ Is Logined":
+                    raise QQLoginedError()
                 if val is not None and val != "":
                     return val
                 else:
-                    LOG.error(f"获取二维码失败: {data}")
-                    raise Exception("获取二维码失败")
-            except TimeoutError:
-                pass
-
-        # LOG.error(
-        #     f"获取二维码失败, 请执行 `napcat stop; napcat start {config.bt_uin}` 后重启引导程序."
-        # )
-        # raise Exception("获取二维码失败")
+                    if time.time() > EXPIRE:
+                        LOG.error(f"获取二维码失败: {data}")
+                        raise TimeoutError("获取二维码失败")
+                    else:
+                        continue
+            except TimeoutError as e:
+                raise e
 
     def get_qq_login_info(self):
         try:
-            return requests.post(
-                self.base_uri + "/api/QQLogin/GetQQLoginInfo",
-                headers=self.header,
-                timeout=5,
-            ).json().get("data", {})
+            return (
+                requests.post(
+                    self.base_uri + "/api/QQLogin/GetQQLoginInfo",
+                    headers=self.header,
+                    timeout=5,
+                )
+                .json()
+                .get("data", {})
+            )
         except TimeoutError:
             LOG.warning("获取登录信息超时, 默认未登录")
             return None
-        
 
     def is_target_qq_online(self) -> bool:
         info = self.get_qq_login_info()
@@ -214,10 +224,18 @@ class LoginHandler:
 
     def _qrcode_login(self):
         try:
-            show_qrcode(self.get_qrcode_url())
+            try:
+                show_qrcode(self.get_qrcode_url())
+            except QQLoginedError:
+                if self.report_login_status() == 0:
+                    LOG.info("QQ 已登录")
+                    return
+                else:
+                    LOG.info("登录状态异常, 请物理重启本机")
+                    raise Exception("登录状态异常")
             TIMEOUT_EXPIRE = time.time() + 60
             WARN_EXPIRE = time.time() + 30
-            while not self.is_target_qq_online():
+            while not self.check_login_status():
                 if time.time() > TIMEOUT_EXPIRE:
                     LOG.error("登录超时, 请重新操作, 如果无法扫码, 请在 webui 登录")
                     raise TimeoutError("登录超时")
@@ -227,6 +245,7 @@ class LoginHandler:
             LOG.info("登录成功")
         except Exception as e:
             LOG.error(f"生成 ASCII 二维码时出错: {e}")
+            LOG.info(traceback.format_exc())
             raise Exception("登录失败")
 
     def _quick_login(self):
@@ -263,7 +282,13 @@ class LoginHandler:
             return 0
 
     def login(self):
+        if self.report_login_status() > 1:
+            LOG.error("登录状态异常, 请物理重启本机")
+            raise Exception("登录状态异常")
         self._login()
+        if self.report_login_status() != 0:
+            LOG.error("登录状态异常, 请检查是否使用了正确的 bot 账号扫码登录")
+            raise Exception("登录状态异常, 请检查登录状态")
 
 
 def login(reset=False):

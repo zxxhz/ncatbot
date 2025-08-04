@@ -1,3 +1,15 @@
+"""测试内容
+Windows:
+ - 纯裸机安装启动(扫码登录)
+ - NapCat 安装但未运行启动(快速登录, 需要手机确认)
+Linux:
+ - 纯裸机安装启动(扫码登录)
+ - NapCat 安装但未运行启动(快速登录)
+跨平台:
+ - 远端模式启动(插件无数据)
+ - NapCat 安装且运行启动(插件有数据)
+"""
+
 import asyncio
 import platform
 import time
@@ -11,8 +23,15 @@ from ncatbot.utils import config, get_log
 LOG = get_log("adapter.nc.launcher")
 
 
-def napcat_service_ok():
-    return asyncio.run(check_websocket(config.ws_uri))
+def napcat_service_ok(EXPIRE=0):
+    if EXPIRE == 0:
+        return asyncio.run(check_websocket(config.ws_uri))
+    else:
+        MAX_TIME_EXPIRE = time.time() + EXPIRE
+        while not napcat_service_ok():
+            if time.time() > MAX_TIME_EXPIRE:
+                return False
+            time.sleep(0.5)
 
 
 def connect_napcat():
@@ -119,10 +138,12 @@ def launch_napcat_service(*args, **kwargs):
                         LOG.error("非 Windows 系统一般需要进行物理重启解决该问题")
                         raise Exception("登录状态异常, 请物理重启本机")
         else:
-            install_or_update_napcat()
+            if not install_or_update_napcat():
+                return False
             start_napcat()  # 配置、启动 NapCat 服务
         if config.enable_webui_interaction:
-            if not napcat_service_ok():
+            if not napcat_service_ok(3):
+                LOG.info("登录中...")
                 login(reset=True)  # NapCat 登录 QQ
             else:
                 LOG.info("快速登录成功, 跳过登录引导")

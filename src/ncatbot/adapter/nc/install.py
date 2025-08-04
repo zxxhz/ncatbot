@@ -177,8 +177,8 @@ def install_or_update_napcat():
     """安装 napcat 或者检查 napcat 更新并重新安装"""
     if not is_napcat_installed():
         if not install_napcat("install"):
-            LOG.error("NapCat 安装失败")
-            raise Exception("NapCat 安装失败")
+            return False
+        return True
     elif config.check_napcat_update:
         # 检查 napcat 版本更新
         with open(
@@ -194,3 +194,5 @@ def install_or_update_napcat():
                 LOG.info(f"跳过 napcat {version} 更新")
         else:
             LOG.info("当前 napcat 已是最新版本")
+    else:
+        return True

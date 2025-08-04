@@ -7,6 +7,7 @@ import platform
 import shutil
 import subprocess
 import time
+import traceback
 from urllib.parse import urlparse
 
 from ncatbot.adapter.nc.install import check_permission, get_napcat_dir
@@ -15,20 +16,33 @@ from ncatbot.utils import WINDOWS_NAPCAT_DIR, config, get_log
 LOG = get_log("adapter.nc.start")
 
 
-def is_napcat_running_linux():
-    process = subprocess.Popen(
-        ["bash", "napcat", "status", str(config.bt_uin)], stdout=subprocess.PIPE
-    )
+def is_napcat_running_linux(target=None):
+    process = subprocess.Popen(["bash", "napcat", "status"], stdout=subprocess.PIPE)
     process.wait()
     output = process.stdout.read().decode(encoding="utf-8")
-    return output.find(str(config.bt_uin)) != -1
+    if target is None:
+        return output.find("PID") != -1
+    else:
+        return output.find(str(target)) != -1
 
 
 def start_napcat_linux():
     """保证 NapCat 已经安装的前提下, 启动 NapCat 服务"""
     # Linux启动逻辑
+    if not is_napcat_running_linux(config.bt_uin):
+        if is_napcat_running_linux():
+            LOG.warning("NapCat 正在运行, 但运行的不是该 QQ 号")
+            rs = input("按 y 强制结束当前 NapCat 进程并继续, 按其他键退出")
+            if rs == "y":
+                stop_napcat_linux()
+            else:
+                raise Exception("NapCat 正在运行, 但运行的不是该 QQ 号")
+    else:
+        LOG.info("NapCat 已启动")
+        return
     try:
         # 启动并注册清理函数
+        LOG.info("正在启动 NapCat 服务")
         if os.path.exists("napcat"):
             LOG.error(
                 "工作目录下存在 napcat 目录, Linux 启动时不应该在工作目录下存在 napcat 目录"
@@ -45,10 +59,13 @@ def start_napcat_linux():
         if config.stop_napcat:
             atexit.register(lambda: stop_napcat_linux(config.bt_uin))
     except Exception as e:
+        import traceback
+
         LOG.error(f"pgrep 命令执行失败, 无法判断 QQ 是否启动, 请检查错误: {e}")
+        LOG.info(traceback.format_exc())
         raise e
 
-    if not is_napcat_running_linux():
+    if not is_napcat_running_linux(config.bt_uin):
         LOG.error("napcat 启动失败，请检查日志")
         raise Exception("napcat 启动失败")
     else:
@@ -57,8 +74,18 @@ def start_napcat_linux():
 
 
 def stop_napcat_linux():
-    process = subprocess.Popen(["bash", "napcat", "stop"], stdout=subprocess.PIPE)
-    process.wait()
+    try:
+        process = subprocess.Popen(["bash", "napcat", "stop"], stdout=subprocess.PIPE)
+        process.wait()
+        if process.returncode != 0:
+            LOG.error("停止 napcat 失败，请检查日志")
+            raise Exception("停止 napcat 失败")
+        else:
+            LOG.info("已成功停止 napcat")
+    except Exception as e:
+        LOG.error(f"停止 napcat 失败，请检查日志: {e}")
+        LOG.info(traceback.format_exc())
+        raise e
 
 
 def is_napcat_running_windows():

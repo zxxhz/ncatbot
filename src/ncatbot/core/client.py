@@ -114,7 +114,6 @@ class BotClient:
 
     def run_non_blocking(self, *args, **kwargs):
         """非阻塞启动, 可能启动失败, 但是不会抛出异常"""
-        self.is_start = None
         Thread(target=self.run, args=args, kwargs=kwargs, daemon=True).start()
         return self.api
 
@@ -126,7 +125,7 @@ class BotClient:
             lambda: lock.release()
         )  # 在 NcatBot 接口可用时, 释放全局锁
         self.run_non_blocking(*args, **kwargs)
-        if not lock.acquire(timeout=120):
+        if not lock.acquire(timeout=360):
             raise RuntimeError("启动超时, 请检查你的网络连接")
         return self.api
 
@@ -314,7 +313,6 @@ class BotClient:
         self.api = BotAPI()
 
         if not launch_napcat_service(*args, **kwargs):  # 保证 NapCat 正常启动
-            self.is_start = False
             return False
         _log.info("NapCat 服务启动登录完成")
         self.is_start = True
