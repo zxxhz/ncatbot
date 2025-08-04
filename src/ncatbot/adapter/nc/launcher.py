@@ -91,7 +91,7 @@ def napcat_service_remote_start():
             if status == 1:
                 LOG.error("远端 NapCat 服务未登录, 请完成登录流程")
 
-    LOG.info("NapCat 服务器离线, 启动本地 NapCat 服务中...")
+    LOG.info("NapCat 服务器离线或未登录")
     return False
 
 
