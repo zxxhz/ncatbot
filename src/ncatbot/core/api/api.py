@@ -1524,6 +1524,7 @@ class BotAPI(SYNC_API_MIXIN):
         video: str = None,
         file: str = None,
         markdown: str = None,
+        filename: str = None,
     ):
         """
         :param user_id: QQ号
@@ -1543,7 +1544,7 @@ class BotAPI(SYNC_API_MIXIN):
         elif video:
             message.append(Video(video))
         elif file:
-            message.append(File(file))
+            message.append(File(file, filename))
         elif markdown:
             message.append(
                 convert_uploadable_object(

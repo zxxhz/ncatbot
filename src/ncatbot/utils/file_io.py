@@ -83,10 +83,13 @@ def convert_uploadable_object(i, message_type):
                 i = f"base64://{base64.b64encode(image_data).decode('utf-8')}"
         else:
             # 使用urljoin规范生成文件URL
-            i = urljoin("file:", urllib.request.pathname2url(os.path.abspath(i)))
+            i = urljoin(
+                "file:",
+                f"base64://{base64.b64encode(open(i, 'rb').read()).decode('utf-8')}",
+            )
         return {"type": message_type, "data": {"file": i}}
     else:
-        # 文件不存在时同样规范处理
+        # 文件不存在时同样规范处理(可能在 NapCat 机子上)
         file_url = urljoin("file:", urllib.request.pathname2url(os.path.abspath(i)))
         return {"type": message_type, "data": {"file": file_url}}
 

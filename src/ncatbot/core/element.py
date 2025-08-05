@@ -286,12 +286,30 @@ class File(Element):
     """文件消息元素"""
 
     type = "file"
+    name = "unknown"
 
-    def __init__(self, file: str):
+    def __init__(self, file: str, name: str = None):
         self.file = file
+        if name:
+            self.name = name
+        else:
+            if file.startswith("http"):
+                self.name = file.split("/")[-1]
+            else:
+                try:
+                    import pathlib
+
+                    self.name = pathlib.Path(file).name
+                except:
+                    if len(file) > 10:
+                        self.name = file[:-10]
+                    else:
+                        self.name = file
 
     def to_dict(self) -> dict:
-        return convert_uploadable_object(self.file, "file")
+        data = convert_uploadable_object(self.file, "file")
+        data["data"]["name"] = self.name
+        return data
 
 
 def decode_message_sent(
@@ -380,7 +398,7 @@ def decode_message_sent(
                 r"\[CQ:image,(summary=(.+?),)?(file=(.+?),)?(sub_type=(.+?),)?(url=(.+?),?)?(file_size=(\d+),?)?\]",
                 raw,
             )
-            replys: list[re.Match] = re.finditer(r"\[CQ:reply,id=(\d+)\]", raw)
+            replies: list[re.Match] = re.finditer(r"\[CQ:reply,id=(\d+)\]", raw)
             l = []
             for _at in ats:
                 l.append((At(_at.group(1)), _at.span()))
@@ -388,7 +406,7 @@ def decode_message_sent(
                 l.append((Face(_face.group(1)), _face.span()))
             for _image in images:
                 l.append((Image(_image.group(8)), _image.span()))
-            for _reply in replys:
+            for _reply in replies:
                 l.append((Reply(_reply.group(1)), _reply.span()))
             # 提取未匹配的部分并加入到 l 中
             unmatched_parts = extract_unmatched(raw, l)
