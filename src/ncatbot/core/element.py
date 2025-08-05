@@ -2,8 +2,6 @@ import json
 import re
 from typing import Iterable, Union
 
-from deprecated import deprecated
-
 from ncatbot.utils import convert_uploadable_object, get_log
 
 LOG = get_log("Element")
@@ -281,8 +279,7 @@ class CustomMusic(Element):
 #         return convert(await md_maker(self.markdown), "image")
 
 
-@deprecated
-class File(Element):
+class File:
     """文件消息元素"""
 
     type = "file"

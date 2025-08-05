@@ -338,9 +338,12 @@ class BotAPI(SYNC_API_MIXIN):
         :param name: 文件名
         :return: 上传私聊文件
         """
+        basic_data = File(file, name)
+        data = basic_data.to_dict()["data"]
+        data["user_id"] = str(user_id)
         return await self._http.post(
             "/upload_private_file",
-            {"user_id": str(user_id), "file": file, "name": name},
+            data,
         )
 
     @report
@@ -869,14 +872,13 @@ class BotAPI(SYNC_API_MIXIN):
         :param folder_id: 文件夹ID
         :return: 上传群文件
         """
+        basic_data = File(file, name)
+        data = basic_data.to_dict()["data"]
+        data["group_id"] = str(group_id)
+        data["folder_id"] = folder_id
         return await self._http.post(
             "/upload_group_file",
-            {
-                "group_id": str(group_id),
-                "file": file,
-                "name": name,
-                "folder_id": folder_id,
-            },
+            data,
         )
 
     @report
@@ -1495,7 +1497,7 @@ class BotAPI(SYNC_API_MIXIN):
         elif video:
             message.append(Video(video))
         elif file:
-            message.append(File(file))
+            message.append(File(file).to_dict())
         elif markdown:
             message.append(
                 convert_uploadable_object(
@@ -1544,7 +1546,7 @@ class BotAPI(SYNC_API_MIXIN):
         elif video:
             message.append(Video(video))
         elif file:
-            message.append(File(file, filename))
+            message.append(File(file, filename).to_dict())
         elif markdown:
             message.append(
                 convert_uploadable_object(
