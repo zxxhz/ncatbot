@@ -61,18 +61,6 @@ def convert_uploadable_object(i, message_type):
             return f"base64://{m.group(2)}"
 
     if i.startswith("http"):
-        # TODO: 优化图片请求
-        # if message_type == "image":
-        #     try:
-        #         with httpx.Client() as client:
-        #             response = client.get(i)
-        #             response.raise_for_status()
-        #             image_data = response.content
-        #             i = f"base64://{base64.b64encode(image_data).decode('utf-8')}"
-        #     except httpx.HTTPError as e:
-        #         return {"type": "text", "data": {"text": f"URL请求失败: {e}"}}
-        #     except Exception as e:
-        #         return {"type": "text", "data": {"text": f"图片转换失败: {e}"}}
         return {"type": message_type, "data": {"file": i}}
     elif is_base64(i):
         return {"type": message_type, "data": {"file": to_base64(i)}}
@@ -82,7 +70,6 @@ def convert_uploadable_object(i, message_type):
                 image_data = f.read()
                 i = f"base64://{base64.b64encode(image_data).decode('utf-8')}"
         else:
-            # 使用urljoin规范生成文件URL
             i = urljoin(
                 "file:",
                 f"base64://{base64.b64encode(open(i, 'rb').read()).decode('utf-8')}",

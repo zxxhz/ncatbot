@@ -281,9 +281,20 @@ def config_napcat():
                 webui_config = json.load(f)
                 port = webui_config.get("port", 6099)
                 token = webui_config.get("token", "")
-                config.webui_token = token
-                config.webui_port = port
+            if token != config.webui_token:
+                LOG.warning(
+                    "WebUI 令牌和 webui 配置文件不匹配, 将自动和配置文件同步, 请注意核对！！"
+                )
+                LOG.info(webui_config_path)
+            if port != config.webui_port:
+                LOG.warning(
+                    "WebUI 端口和 webui 配置文件不匹配, 将自动和配置文件同步, 请注意核对！！"
+                )
+                LOG.info(webui_config_path)
+
             LOG.info("Token: " + token + ", Webui port: " + str(port))
+            config.webui_token = token
+            config.webui_port = port
 
         except FileNotFoundError:
             LOG.warning("无法读取 WebUI 配置, 将使用默认配置")

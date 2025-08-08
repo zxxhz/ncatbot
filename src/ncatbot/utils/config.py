@@ -226,6 +226,11 @@ class SetConfig:
             self.ws_uri = f"ws://{self.ws_uri}"
         self.ws_host = urllib.parse.urlparse(self.ws_uri).hostname
         self.ws_port = urllib.parse.urlparse(self.ws_uri).port
+        if self.ws_port is None:
+            LOG.warning(
+                f"ws_uri {self.ws_uri} 可能有误, 未填写端口, 请确定你真的不需要端口"
+            )
+            self.ws_port = ""
 
     def _standardize_webui_uri(self):
         if not (
@@ -240,6 +245,11 @@ class SetConfig:
             time.sleep(2.5)
         self.webui_host = urllib.parse.urlparse(self.webui_uri).hostname
         self.webui_port = urllib.parse.urlparse(self.webui_uri).port
+        if self.ws_port is None:
+            LOG.warning(
+                f"webui_uri {self.webui_uri} 可能有误, 未填写端口, 请确定你真的不需要端口"
+            )
+            self.webui_port = ""
 
 
 config = SetConfig()

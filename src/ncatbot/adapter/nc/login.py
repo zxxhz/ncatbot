@@ -59,7 +59,10 @@ class LoginHandler:
         # pass
         MAX_TIME_EXPIER = time.time() + 15
         # self.base_uri = "http://10.210.55.111:6099"
-        self.base_uri = f"http://{config.webui_host}:{config.webui_port}"
+        if config.webui_port != "":
+            self.base_uri = f"http://{config.webui_host}:{config.webui_port}"
+        else:
+            self.base_uri = f"http://{config.webui_host}"
         while True:
             try:
                 time.sleep(0.02)
