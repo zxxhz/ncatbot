@@ -98,23 +98,51 @@ class Conf:
 
 
 async def set_admin(message: BaseMessage):
-    args = message.raw_message.split(" ")[1:]
-    if len(args) != 1:
-        message.reply_text_sync("参数个数错误, 命令格式(不含尖括号): /sm <qq_number>")
+    def process(x):
+        import re
+
+        """
+        处理传入参数，提取QQ号
+        参数x可以是以下两种格式之一：
+        1. CQ码格式，如 [CQ:at,qq=3051561876]
+        2. 纯QQ号字符串，如 "3051561876"
+
+        返回标准的QQ号字符串
+        """
+        # 尝试匹配CQ码格式
+        cq_pattern = r"\[CQ:at,qq=(\d+)\]"
+        match = re.search(cq_pattern, x)
+        if match:
+            return match.group(1)
+
+        # 如果不是CQ码，尝试匹配纯数字QQ号
+        w = re.search(r"\d+", x)
+        if w is not None:
+            return w.group(0)
+
+        # 如果都不匹配，可以抛出异常或返回None
+        raise ValueError("无效的输入格式，无法提取QQ号")
+
+    qq = str(process(message.raw_message))
+    if False:
+        pass
+    # if len(args) != 1:
+    # message.reply_text_sync("参数个数错误, 命令格式(不含尖括号): /sm <qq_number>")
     else:
+
         if not get_global_access_controller().user_has_role(
-            args[0], PermissionGroup.ADMIN.value
+            qq, PermissionGroup.ADMIN.value
         ):
             get_global_access_controller().assign_role_to_user(
-                args[0], PermissionGroup.ADMIN.value
+                qq, PermissionGroup.ADMIN.value
             )
-            message.reply_text_sync(f"已经将用户 {args[0]} 设为管理员")
+            message.reply_text_sync(f"已经将用户 {qq} 设为管理员")
         else:
             get_global_access_controller().unassign_role_to_user(
-                args[0],
+                qq,
                 PermissionGroup.ADMIN.value,
             )
-            message.reply_text_sync(f"已经将用户 {args[0]} 取消管理员")
+            message.reply_text_sync(f"已经将用户 {qq} 取消管理员")
 
 
 async def show_plugin(message: BaseMessage, event_bus=None):

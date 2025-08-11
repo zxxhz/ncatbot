@@ -1,9 +1,8 @@
 import datetime
 import json as j
 
-import websockets
-
 from ncatbot.utils import config, get_log
+
 from .connect import connect
 
 _log = get_log()
@@ -52,9 +51,7 @@ class Route:
 
     async def post(self, path, params=None, json=None):
         # 开大限制到 16MB
-        async with connect(
-            self.url, extra_headers=self.headers, max_size=2**24
-        ) as ws:
+        async with connect(self.url, extra_headers=self.headers, max_size=2**32) as ws:
             if params:
                 await ws.send(
                     j.dumps(

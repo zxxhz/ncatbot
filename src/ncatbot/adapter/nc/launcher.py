@@ -32,6 +32,7 @@ def napcat_service_ok(EXPIRE=0):
             if time.time() > MAX_TIME_EXPIRE:
                 return False
             time.sleep(0.5)
+    return True
 
 
 def connect_napcat():
